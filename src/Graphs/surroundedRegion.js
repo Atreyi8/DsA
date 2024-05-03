@@ -25,45 +25,66 @@
 // 1 <= m, n <= 200
 // board[i][j] is 'X' or 'O'.
 
-function solve(board) {
-  helper(board, "Y", "O");
-  console.log(board);
-  for (let i = 0; i < board.length; i++) {
-    for (let j = 0; j < board[0].length; j++) {
-      if (board[i][j] == "O") board[i][j] = "X";
-      if (board[i][j] == "Y") board[i][j] = "O";
+const dfs = (r, c, board, visited, drow, dcol, n, m) => {
+  visited[r][c] = 1;
+  for (let i = 0; i < 4; i++) {
+    let nrow = r + drow[i];
+    let ncol = c + dcol[i];
+    if (
+      nrow >= 0 &&
+      nrow < n &&
+      ncol >= 0 &&
+      ncol < m &&
+      !visited[nrow][ncol] &&
+      board[nrow][ncol] === "O"
+    ) {
+      dfs(nrow, ncol, board, visited, drow, dcol, n, m);
     }
   }
+};
+var solve = function (board) {
+  let n = board.length;
+  let m = board[0].length;
+  let visited = Array.from({ length: n }, () => Array(m).fill(0));
+  let drow = [-1, 0, 1, 0];
+  let dcol = [0, 1, 0, -1];
+
+  // checking boundaries
+  // First row and last row
+  for (let j = 0; j < m; j++) {
+    //first row
+    if (board[0][j] === "O" && !visited[0][j]) {
+      dfs(0, j, board, visited, drow, dcol, n, m);
+    }
+
+    //last row
+    if (board[n - 1][j] === "O" && !visited[n - 1][j]) {
+      dfs(n - 1, j, board, visited, drow, dcol, n, m);
+    }
+  }
+
+  for (let i = 0; i < n; i++) {
+    //first col
+    if (board[i][0] === "O" && !visited[i][0]) {
+      dfs(i, 0, board, visited, drow, dcol, n, m);
+    }
+
+    //last row
+    if (board[i][m - 1] === "O" && !visited[i][m - 1]) {
+      dfs(i, m - 1, board, visited, drow, dcol, n, m);
+    }
+  }
+
+  console.log(visited);
+
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < m; j++) {
+      if (!visited[i][j] && board[i][j] === "O") {
+        board[i][j] = "X";
+        visited[i][j] = 1;
+      }
+    }
+  }
+
   return board;
-}
-function helper(board, res, key) {
-  let N = Math.max(board.length, board[0].length);
-  for (let i = 0; i < N; i++) {
-    if (i < board.length && board[i][0] == key) dfs(i, 0, board, res, key);
-
-    if (i < board.length && board[i][board[i].length - 1] == key)
-      dfs(i, board[i].length - 1, board, res, key);
-
-    if (i < board[0].length && board[0][i] == key) dfs(0, i, board, res, key);
-
-    if (i < board[0].length && board[board.length - 1][i] == key)
-      dfs(board.length - 1, i, board, res, key);
-  }
-}
-function dfs(i, j, grid, res, key) {
-  grid[i][j] = res;
-  let rowSize = grid.length;
-  let columnSize = grid[0].length;
-  if (i > 0 && grid[i - 1][j] == key) {
-    dfs(i - 1, j, grid, res, key);
-  }
-  if (i < rowSize - 1 && grid[i + 1][j] == key) {
-    dfs(i + 1, j, grid, res, key);
-  }
-  if (j > 0 && grid[i][j - 1] == key) {
-    dfs(i, j - 1, grid, res, key);
-  }
-  if (j < columnSize - 1 && grid[i][j + 1] == key) {
-    dfs(i, j + 1, grid, res, key);
-  }
-}
+};
